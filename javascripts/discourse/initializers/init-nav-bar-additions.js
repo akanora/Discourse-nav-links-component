@@ -1,4 +1,25 @@
 import { withPluginApi } from "discourse/lib/plugin-api";
+import I18n from "I18n";
+
+/**
+ * Resolve a field value from a nav link, checking for a locale-specific
+ * translation first. Falls back to the base field value.
+ */
+function getLocalizedField(link, fieldName) {
+  const translations = link.translations;
+  if (!translations || translations.length === 0) {
+    return link[fieldName];
+  }
+
+  const locale = I18n.currentLocale();
+
+  // Try exact match first (e.g. "pt_BR"), then prefix match (e.g. "pt")
+  const match =
+    translations.find((t) => t.locale === locale) ||
+    translations.find((t) => locale.startsWith(t.locale));
+
+  return (match && match[fieldName]) || link[fieldName];
+}
 
 // Built-in Discourse filter routes that have associated topic counts
 const COUNTED_FILTERS = {
@@ -39,15 +60,14 @@ export default {
         "service:topic-tracking-state"
       );
 
-      for (const {
-        display_name: displayName,
-        title,
-        url,
-      } of settings.nav_links) {
+      for (const link of settings.nav_links) {
+        const { display_name: displayName, url } = link;
+        const localizedDisplayName = getLocalizedField(link, "display_name");
+        const localizedTitle = getLocalizedField(link, "title");
         const filterType = COUNTED_FILTERS[url];
         const itemConfig = {
           name: `custom_${displayName.replace(/\s+/g, "-").toLowerCase()}`,
-          title,
+          title: localizedTitle,
           href: url,
           forceActive: (category, args, router) =>
             router.currentURL?.split("?")[0] === url,
@@ -58,10 +78,12 @@ export default {
           // reactively, picking up count changes from TopicTrackingState
           itemConfig.displayName = () => {
             const count = getCountForFilter(topicTrackingState, filterType);
-            return count > 0 ? `${displayName} (${count})` : displayName;
+            return count > 0
+              ? `${localizedDisplayName} (${count})`
+              : localizedDisplayName;
           };
         } else {
-          itemConfig.displayName = displayName;
+          itemConfig.displayName = localizedDisplayName;
         }
 
         api.addNavigationBarItem(itemConfig);

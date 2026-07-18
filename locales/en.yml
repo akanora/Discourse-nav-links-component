@@ -14,3 +14,16 @@ en:
             url:
               label: URL
               description: The link (e.g., /latest or https://discourse.org)
+            translations:
+              label: Translations
+              description: Per-language overrides for display name and title
+              properties:
+                locale:
+                  label: Language
+                  description: Select the language for this translation
+                display_name:
+                  label: Display name
+                  description: Translated display name for this language
+                title:
+                  label: Title
+                  description: Translated title (hover text) for this language
