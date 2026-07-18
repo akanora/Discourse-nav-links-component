@@ -40,3 +40,7 @@ Hide_default_links:
   default: false
   description:
     en: "Hide the default links on both mobile and desktop."
+Show_counts:
+  default: false
+  description:
+    en: "Show topic counts for links pointing to /new or /unread (e.g. New (24))."
