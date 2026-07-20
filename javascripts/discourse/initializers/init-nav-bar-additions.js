@@ -33,18 +33,12 @@ function getCountForFilter(topicTrackingState, filterType) {
   }
 
   if (filterType === "new") {
-    return (
-      topicTrackingState.countNew?.() ??
-      topicTrackingState.newCount ??
-      0
-    );
+    return topicTrackingState.countNew?.() ?? topicTrackingState.newCount ?? 0;
   }
 
   if (filterType === "unread") {
     return (
-      topicTrackingState.countUnread?.() ??
-      topicTrackingState.unreadCount ??
-      0
+      topicTrackingState.countUnread?.() ?? topicTrackingState.unreadCount ?? 0
     );
   }
 
