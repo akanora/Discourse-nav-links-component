@@ -27,7 +27,11 @@ const COUNTED_FILTERS = {
   "/unread": "unread",
 };
 
-function getCountForFilter(topicTrackingState, filterType, siteSettings) {
+function getCountForFilter(
+  topicTrackingState,
+  filterType,
+  { enable_unified_new }
+) {
   if (!topicTrackingState) {
     return 0;
   }
@@ -41,7 +45,7 @@ function getCountForFilter(topicTrackingState, filterType, siteSettings) {
     // When Discourse's "Unified New" is enabled, the /new route shows both
     // new and unread topics, so the count should reflect both — matching
     // the behaviour of Discourse's built-in "New" navigation item.
-    if (siteSettings?.enable_unified_new) {
+    if (enable_unified_new) {
       return newCount + unreadCount;
     }
     return newCount;
@@ -81,11 +85,9 @@ export default {
           // Use a function for displayName so Discourse re-evaluates it
           // reactively, picking up count changes from TopicTrackingState.
           itemConfig.displayName = () => {
-            const count = getCountForFilter(
-              topicTrackingState,
-              filterType,
-              siteSettings
-            );
+            const count = getCountForFilter(topicTrackingState, filterType, {
+              enable_unified_new: siteSettings.enable_unified_new,
+            });
             return count > 0
               ? `${localizedDisplayName} (${count})`
               : localizedDisplayName;
